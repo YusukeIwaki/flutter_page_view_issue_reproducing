@@ -37,10 +37,13 @@ class PageViewHomeState extends State {
 
   PageController _pageController;
 
+  bool _isPageViewAnimating;
+
   @override
   void initState() {
     super.initState();
 
+    _isPageViewAnimating = false;
     currentPage = 20;
     _pageController =
         PageController(initialPage: currentPage, viewportFraction: 0.8);
@@ -76,6 +79,8 @@ class PageViewHomeState extends State {
                 );
               }),
               onPageChanged: (page) {
+                if (_isPageViewAnimating) return;
+
                 setState(() {
                   pageHistories.add("onPageChanged: => ${page}");
                   currentPage = page;
@@ -89,13 +94,17 @@ class PageViewHomeState extends State {
               FlatButton(
                 child: Text("<<"),
                 onPressed: () {
+                  _isPageViewAnimating = true;
                   _pageController.animateToPage(0,
                       duration: Duration(milliseconds: 800),
                       curve: Curves.easeOutQuart,
                   ).then((_) {
                     setState(() {
-                      pageHistories.add("animateToPage: completed");
+                      final int page = _pageController.page.toInt();
+                      pageHistories.add("animateToPage: ${page}, completed");
+                      currentPage = page;
                     });
+                    _isPageViewAnimating = false;
                   });
                 },
               ),
@@ -108,13 +117,17 @@ class PageViewHomeState extends State {
               FlatButton(
                 child: Text(">>"),
                 onPressed: () {
+                  _isPageViewAnimating = true;
                   _pageController.animateToPage(299,
                     duration: Duration(milliseconds: 800),
                     curve: Curves.easeOutQuart,
                   ).then((_) {
                     setState(() {
-                      pageHistories.add("animateToPage: completed");
+                      final int page = _pageController.page.toInt();
+                      pageHistories.add("animateToPage: ${page}, completed");
+                      currentPage = page;
                     });
+                    _isPageViewAnimating = false;
                   });
                 },
               )
